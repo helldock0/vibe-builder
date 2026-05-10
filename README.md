@@ -39,6 +39,25 @@ No jargon. No 6-question forms. No "what's your tech stack?" — that's the skil
 
 ---
 
+## 💭 why I built this
+
+I'm not a software engineer. I trade forex, coach Valorant teams, and one day I'll take over my dad's business. Coding was never the plan.
+
+Then Claude Code happened, and suddenly I could *actually build the things I'd been daydreaming about for years.* But every time I tried, I hit the same wall:
+
+- Claude would ask *"what database do you want?"* — bro, I don't know, that's why I'm here
+- I'd describe an idea and get back a 12-question form before any code happened
+- Half the time it would build something from scratch when there was already a free open-source project that did 90% of the work
+- I'd ship a Phase 1 with API keys exposed and no error handling, and only find out later when something broke
+
+So I built vibe-builder. It's the skill I wish existed when I started.
+
+It **decides instead of asking** (you can override anything). It **searches for existing solutions first** so you're not reinventing wheels. It **walks you through setup** with exact button names and URLs — not "go configure your Postgres instance." And it **silently reviews every phase** for the dumb mistakes a non-engineer would miss (exposed keys, missing auth, broken edge cases).
+
+Built for people like me. If that's you too — welcome. 🌀
+
+---
+
 ## 🎯 who this is for
 
 | If you... | vibe-builder is for you |
@@ -51,22 +70,147 @@ No jargon. No 6-question forms. No "what's your tech stack?" — that's the skil
 
 ---
 
-## 🚀 install
+## 🛠️ install — step by step
 
-This is a [Claude Code skill](https://docs.claude.com/en/docs/claude-code/skills). It runs inside Claude Code on your machine.
+> 📌 vibe-builder is a **Claude Code skill**. It runs inside [Claude Code](https://docs.claude.com/en/docs/claude-code) — Anthropic's terminal coding assistant. If you don't have Claude Code yet, install it first: https://docs.claude.com/en/docs/claude-code/installation
 
+### 0. Prerequisites (one-time, ~5 minutes if you don't have these)
+
+You need three things on your machine. Skip whichever ones you already have.
+
+| Tool | Why | How to install |
+|------|-----|----------------|
+| **Claude Code** | Where the skill runs | https://docs.claude.com/en/docs/claude-code/installation |
+| **Git** | To download the skill | Mac/Linux: usually pre-installed. Windows: https://git-scm.com/download/win |
+| **Node.js 18+** | For the optional companion tools (claude-mem, statusline) | https://nodejs.org → download the LTS version |
+
+To check if you already have them, open your terminal and run:
+
+```bash
+claude --version    # should show a version number
+git --version       # should show a version number  
+node --version      # should show v18 or higher
+```
+
+If any are missing, install them before continuing.
+
+---
+
+### 1. Find your Claude Code skills folder
+
+Skills live in a specific folder Claude Code automatically reads from. Where it is depends on your OS:
+
+| OS | Skills folder path |
+|------|-------------------|
+| **macOS / Linux** | `~/.claude/skills/` |
+| **Windows** | `C:\Users\<your-username>\.claude\skills\` (in Git Bash: `~/.claude/skills/`) |
+
+Don't worry about creating it manually — the next step does that automatically.
+
+---
+
+### 2. Clone vibe-builder into the skills folder
+
+Open your terminal and run **one** of these depending on your OS:
+
+**macOS / Linux / Windows (Git Bash):**
 ```bash
 git clone https://github.com/helldock0/vibe-builder.git ~/.claude/skills/vibe-builder
 ```
 
-That's it. Open Claude Code, describe what you want to build, and vibe-builder activates automatically.
+**Windows (PowerShell):**
+```powershell
+git clone https://github.com/helldock0/vibe-builder.git "$env:USERPROFILE\.claude\skills\vibe-builder"
+```
 
-### 🧰 recommended companions
+This downloads the skill (including the bundled UI/UX engine) into the right place. Takes about 30 seconds.
 
-| Tool | What it does | Install |
-|------|--------------|---------|
-| 🧠 [**claude-mem**](https://github.com/thedotmack/claude-mem) | Persistent memory across sessions | `npx claude-mem install` |
-| 📊 **statusline** | Per-model usage display in your terminal | Ships with this skill — see [SKILL.md](./SKILL.md) |
+---
+
+### 3. Verify it installed correctly
+
+```bash
+ls ~/.claude/skills/vibe-builder/
+```
+
+You should see: `bin/`, `bundled/`, `CREDITS.md`, `LICENSE`, `README.md`, `SKILL.md`
+
+If you see those, **the skill is installed.** That's it.
+
+---
+
+### 4. Test it
+
+Open Claude Code in any folder (preferably a fresh empty one to avoid mixing with existing projects):
+
+```bash
+mkdir my-first-build
+cd my-first-build
+claude
+```
+
+Then type something like:
+
+> *i wanna build a simple website to keep track of my reading list*
+
+vibe-builder should auto-trigger and start its workflow. If it doesn't, restart Claude Code (close and reopen) — sometimes new skills need a session restart to register.
+
+---
+
+### 5. (Optional) Install the companion tools
+
+These make vibe-builder *much* more powerful but aren't required.
+
+#### 🧠 claude-mem — persistent memory across sessions
+
+Without this, Claude Code forgets everything between sessions. With it, you can pick up exactly where you left off.
+
+```bash
+npx claude-mem install
+```
+
+Follow the prompts. Most defaults are fine. More info: https://github.com/thedotmack/claude-mem
+
+#### 📊 statusline — see your usage limits in the terminal
+
+The skill ships with a `bin/statusline.sh` script that shows your context window %, 5-hour usage %, weekly usage %, and cost — all in your Claude Code status bar.
+
+To enable it:
+
+1. Open `~/.claude/settings.json` (create the file with `{}` if it doesn't exist)
+2. Add this `statusLine` block (preserving any other keys that already exist):
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/skills/vibe-builder/bin/statusline.sh",
+    "padding": 0
+  }
+}
+```
+
+3. Restart Claude Code. You should see something like this at the bottom:
+
+````
+my-project main │ Opus 4.7 │ ctx ▓░░░ 24% │ 5h ▓▓░░ 35% │ wk 17% │ $0.42
+````
+
+Requirements: `jq` and `curl`. Both come pre-installed on Mac/Linux. On Windows: `winget install jqlang.jq` if needed.
+
+---
+
+### 🆘 troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| Skill doesn't trigger when I describe my idea | Restart Claude Code completely (close and reopen). Skills register at startup. |
+| `git: command not found` | Install Git from https://git-scm.com |
+| `~` doesn't work in my terminal | Replace `~` with your full home path: e.g. `/Users/yourname/` (Mac) or `C:\Users\yourname\` (Windows) |
+| `bundled/ui-ux-pro-max/SKILL.md not found` | The clone didn't include all files. Delete the folder and re-clone. |
+| Statusline shows `?` for everything | jq not installed, or no API call has happened yet in the session — type one message and it'll populate. |
+
+Still stuck? Open an [issue on GitHub](https://github.com/helldock0/vibe-builder/issues). I read every one.
 
 ---
 
@@ -107,6 +251,7 @@ vibe-builder/
 ├── SKILL.md              # the brain — 6-phase workflow
 ├── CREDITS.md            # full attribution
 ├── LICENSE               # MIT
+├── README.md             # this file
 ├── bin/
 │   └── statusline.sh     # per-model usage + context + cost display
 └── bundled/
@@ -137,7 +282,7 @@ Massive thanks to all three. Full attribution in [CREDITS.md](./CREDITS.md).
 
 <div align="center">
 
-Built by [James](https://github.com/helldock0) ([@Helldock](https://github.com/helldock0))
+Built by [James](https://github.com/helldock0) ([@Helldock](https://github.com/helldock0)) — based in Tamil Nadu, India 🇮🇳
 
 ⭐ if this saved you from "what stack should I use?" paralysis, throw a star
 
