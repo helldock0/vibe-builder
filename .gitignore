@@ -1,0 +1,20 @@
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Python (bundled ui-ux-pro-max scripts)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Logs / temp
+*.log
+*.tmp
