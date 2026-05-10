@@ -157,46 +157,34 @@ vibe-builder should auto-trigger and start its workflow. If it doesn't, restart 
 
 ---
 
-### 5. (Optional) Install the companion tools
+### 5. (Optional) one-line companion installs
 
-These make vibe-builder *much* more powerful but aren't required.
+vibe-builder is way better with these. Both are one command.
 
 #### 🧠 claude-mem — persistent memory across sessions
 
-Without this, Claude Code forgets everything between sessions. With it, you can pick up exactly where you left off.
+```bash
+bash ~/.claude/skills/vibe-builder/bin/install-claude-mem.sh
+```
+
+Without this, Claude Code forgets everything between sessions. With it, you pick up exactly where you left off.
+
+#### 📊 statusline — see usage limits in your terminal
 
 ```bash
-npx claude-mem install
+bash ~/.claude/skills/vibe-builder/bin/install-statusline.sh
 ```
 
-Follow the prompts. Most defaults are fine. More info: https://github.com/thedotmack/claude-mem
+Adds a status bar at the bottom of Claude Code showing context %, 5-hour usage %, weekly usage %, and cost — color-coded (green / yellow / red).
 
-#### 📊 statusline — see your usage limits in the terminal
-
-The skill ships with a `bin/statusline.sh` script that shows your context window %, 5-hour usage %, weekly usage %, and cost — all in your Claude Code status bar.
-
-To enable it:
-
-1. Open `~/.claude/settings.json` (create the file with `{}` if it doesn't exist)
-2. Add this `statusLine` block (preserving any other keys that already exist):
-
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "bash ~/.claude/skills/vibe-builder/bin/statusline.sh",
-    "padding": 0
-  }
-}
-```
-
-3. Restart Claude Code. You should see something like this at the bottom:
-
+Preview:
 ````
 my-project main │ Opus 4.7 │ ctx ▓░░░ 24% │ 5h ▓▓░░ 35% │ wk 17% │ $0.42
 ````
 
-Requirements: `jq` and `curl`. Both come pre-installed on Mac/Linux. On Windows: `winget install jqlang.jq` if needed.
+The installer checks prereqs (jq, curl), backs up your existing `~/.claude/settings.json`, safely merges in the new config, and smoke-tests the script before you restart. If anything fails, your settings.json is untouched.
+
+To remove later: `bash ~/.claude/skills/vibe-builder/bin/uninstall-statusline.sh`
 
 ---
 
@@ -208,7 +196,8 @@ Requirements: `jq` and `curl`. Both come pre-installed on Mac/Linux. On Windows:
 | `git: command not found` | Install Git from https://git-scm.com |
 | `~` doesn't work in my terminal | Replace `~` with your full home path: e.g. `/Users/yourname/` (Mac) or `C:\Users\yourname\` (Windows) |
 | `bundled/ui-ux-pro-max/SKILL.md not found` | The clone didn't include all files. Delete the folder and re-clone. |
-| Statusline shows `?` for everything | jq not installed, or no API call has happened yet in the session — type one message and it'll populate. |
+| Statusline shows `?` for everything | jq not installed (the installer would have caught this), or no API call has happened yet in the session — type one message and it'll populate. |
+| Statusline installer says "jq not installed" | Install jq: Windows `winget install jqlang.jq`, macOS `brew install jq`, Linux `sudo apt install jq`. Then re-run the installer. |
 
 Still stuck? Open an [issue on GitHub](https://github.com/helldock0/vibe-builder/issues). I read every one.
 
